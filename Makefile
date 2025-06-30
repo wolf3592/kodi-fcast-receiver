@@ -1,5 +1,5 @@
-NAME=wolf3592.fcast.receiver
-VERSION=0.0.3
+NAME=service.fcast.receiver
+VERSION=0.0.1
 SOURCE_DIR=$(shell basename `pwd`)
 TARGET_DIR=$(shell basename `pwd`)/dist
 TARGET_ZIP=${NAME}-${VERSION}.zip
