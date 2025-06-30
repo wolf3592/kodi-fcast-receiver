@@ -19,6 +19,9 @@ The original addon by c4valli has not been updated for over 9 months and is curr
 - Ensure compatibility with the latest Kodi versions (e.g., Kodi 21 "Omega").
 - Provide ongoing maintenance and updates.
 
+## Pre-Release Available
+A testing version of the addon is available: [v0.0.1-alpha](https://github.com/wolf3592/kodi-fcast-receiver/releases/tag/v0.0.1-alpha).
+
 ## Acknowledgments
 - Original creator: [c4valli](https://github.com/c4valli/kodi-fcast-receiver) 
 
