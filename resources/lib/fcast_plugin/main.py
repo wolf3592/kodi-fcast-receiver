@@ -128,7 +128,8 @@ def handle_seek(session: FCastSession, message = None):
 
     log(f"Client request seek to {message.time}")
     # Send FCastMessage so the client's seek bar position updates better
-    player_total_time=10000
+    # not sure what to send for duration if no player so default to 10800 (3 hrs)
+    player_total_time=10800
     if player:
         player_total_time=player.getTotalTime()
 
