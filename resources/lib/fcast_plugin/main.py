@@ -107,7 +107,7 @@ def handle_play(session: FCastSession, message:PlayMessage):
         if player.isPlaying():
             player.stop()
         player.play(item=url, listitem=play_item)
-        ignore_subsequent_plays_messages=False
+        
 
 def do_seek():
     global player, seeks
