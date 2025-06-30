@@ -1,3 +1,5 @@
+# This is equivalent to receivers/electron/main.ts
+
 import sys
 import socket
 from threading import Thread
@@ -38,7 +40,9 @@ seeks: list[float] = []
 
 def check_player():
     global player
+    
     log("Starting player thread")
+    
     monitor = xbmc.Monitor()
     while not monitor.abortRequested():
         if player and player.isPlaying():
@@ -50,14 +54,13 @@ def check_player():
             break
     log("Exiting player thread")
 
-def handle_play(session: FCastSession, message = None):
-    log(f"Client request play")
+def handle_play(session: FCastSession, message:PlayMessage):
     play_item: Optional[xbmcgui.ListItem] = None
     url: str = ""
 
     if not message:
         return
-
+    
     if message.url:
         url = message.url
         parsed_url = urlparse(url)
@@ -104,6 +107,7 @@ def handle_play(session: FCastSession, message = None):
         if player.isPlaying():
             player.stop()
         player.play(item=url, listitem=play_item)
+        ignore_subsequent_plays_messages=False
 
 def do_seek():
     global player, seeks
@@ -124,9 +128,14 @@ def handle_seek(session: FCastSession, message = None):
 
     log(f"Client request seek to {message.time}")
     # Send FCastMessage so the client's seek bar position updates better
+    player_total_time=10000
+    if player:
+        player_total_time=player.getTotalTime()
+
     session.send_playback_update(PlayBackUpdateMessage(
         message.time,
         PlayBackState.PAUSED if (player and player.is_paused) else PlayBackState.PLAYING,
+        duration=player_total_time
     ))
 
     # Append this seek to the seeks "queue"
@@ -168,7 +177,7 @@ def connection_handler(conn: socket.socket, addr):
 
     monitor = xbmc.Monitor()
     notify("Connection from %s" % addr[0])
-
+    #import web_pdb; web_pdb.set_trace()
     session = FCastSession(conn)
 
     session.on(Event.PLAY, handle_play)
@@ -221,6 +230,7 @@ def main():
     player = FCastPlayer(sessions)
     player_thread = Thread(target=check_player)
     player_thread.start()
+    
 
     # Create HTTP server to stream manifest files
     http_server = FCastHTTPServer()
@@ -229,10 +239,11 @@ def main():
     try:
         s.bind((FCAST_HOST, FCAST_PORT))
         s.listen()
-    except:
-        notify("Bind failed", xbmcgui.NOTIFICATION_ERROR)
+    except Exception as e:
+        xbmc.log(f"Bind error: {str(e)}", xbmc.LOGERROR)
+        notify(f"Bind failed here is e: {str(e)}", xbmcgui.NOTIFICATION_ERROR)
         s.close()
-        exit()
+        raise
 
     # Set up event listener that detects for a new socket connection
     selector = selectors.DefaultSelector()
@@ -243,11 +254,12 @@ def main():
     monitor = xbmc.Monitor()
     # Loop for new connections
     while not monitor.abortRequested():
-        events = selector.select(timeout=0)
-
+        events = selector.select(timeout=0.1)
+        
         # Check for connections
         for key, mask in events:
             if key.data is None:
+#                if session_threads.count==0:
                 conn, addr = s.accept()
                 conn.setblocking(False)
                 # Create a new thread for the connection

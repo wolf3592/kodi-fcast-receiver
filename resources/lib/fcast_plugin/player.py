@@ -1,6 +1,6 @@
 import xbmc
 
-from .FCastSession import FCastSession, PlayBackUpdateMessage, PlayBackState
+from .FCastSession import FCastSession, PlayBackUpdateMessage, PlayBackState, PlayMessage,OpCode
 from .util import log
 
 from typing import List
@@ -11,7 +11,7 @@ class FCastPlayer(xbmc.Player):
     is_paused: bool = False
     # Used to perform time updates
     prev_time: int = -1
-
+    
     def __init__(self, sessions: List[FCastSession]):
         self.sessions = sessions
         super().__init__()
@@ -44,10 +44,11 @@ class FCastPlayer(xbmc.Player):
     
     def onPlayBackEnded(self) -> None:
         for session in self.sessions:
-            session.send_playback_update(PlayBackUpdateMessage(
-                0,
-                PlayBackState.IDLE,
-            ))
+            session.sendOpCode(opcode=OpCode.STOP)
+            #session.send_playback_update(PlayBackUpdateMessage(
+            #    0,
+            #    PlayBackState.IDLE,
+            #))
     
     def onPlayBackError(self) -> None:
         self.onPlayBackEnded()
@@ -58,10 +59,12 @@ class FCastPlayer(xbmc.Player):
     # Not overriden
     def onPlayBackTimeChanged(self) -> None:
         time_int = int(self.getTime())
+        duration=int(self.getTotalTime())
         self.prev_time = int(self.getTime())
         pb_message = PlayBackUpdateMessage(
             time_int,
             PlayBackState.PAUSED if self.is_paused else PlayBackState.PLAYING,
+            duration=duration
         )
         for session in self.sessions:
             session.send_playback_update(pb_message)
@@ -70,4 +73,5 @@ class FCastPlayer(xbmc.Player):
         self.sessions.append(session)
     
     def removeSession(self, session: FCastSession):
-        self.sessions.remove(session)
+        self.sessions.remove(session)   
+

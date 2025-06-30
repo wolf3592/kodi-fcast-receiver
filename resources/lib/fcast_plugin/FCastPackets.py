@@ -24,12 +24,12 @@ class PlayMessage:
         self.headers = headers
 
 class SeekMessage:
-    def __init__(self, time: float) -> None:
+    def __init__(self, time: int) -> None:
         self.time = time
 
 class PlayBackUpdateMessage:
     def __init__(self,
-        time: float,
+        time: int,
         state: PlayBackState,
         speed: float = 1.0,
         duration: Optional[float] = None,
@@ -39,15 +39,15 @@ class PlayBackUpdateMessage:
         self.duration = duration
         self.speed = speed
         self.state = state
-        self.generationTime = generationTime if generationTime else datetime.now(timezone.utc).timestamp() * 1000
+        self.generationTime = generationTime if generationTime else int(datetime.now(timezone.utc).timestamp() * 1000)
 
 class VolumeUpdateMessage:
     def __init__(self,
         volume: float,
-        generationTime: Optional[float] = None
+        generationTime: Optional[int] = None
     ) -> None:
         self.volume = volume
-        self.generationTime = generationTime if generationTime else datetime.now(timezone.utc).timestamp() * 1000
+        self.generationTime = generationTime if generationTime else int(datetime.now(timezone.utc).timestamp() * 1000)
 
 class SetVolumeMessage:
     def __init__(self, volume: float) -> None:
@@ -62,5 +62,7 @@ class PlaybackErrorMessage:
         self.message = message
 
 class VersionMessage:
-    def __init__(self, version: float) -> None:
+    def __init__(self, version: int) -> None:
         self.version = version
+
+
