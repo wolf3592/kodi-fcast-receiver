@@ -1,9 +1,10 @@
 import xbmc
+import xbmcgui
 
 from .FCastSession import FCastSession, PlayBackUpdateMessage, PlayBackState, PlayMessage,OpCode
 from .util import log
 
-from typing import List
+from typing import List, Optional
 
 class FCastPlayer(xbmc.Player):
     playback_speed: float = 1.0
@@ -15,7 +16,7 @@ class FCastPlayer(xbmc.Player):
     def __init__(self, sessions: List[FCastSession]):
         self.sessions = sessions
         super().__init__()
-    
+
     def doPause(self) -> None:
         if not self.is_paused:
             self.is_paused = True
@@ -30,9 +31,10 @@ class FCastPlayer(xbmc.Player):
         log("Playback started")
         self.is_paused = False
         # Start time loop once the player is active
-        self.onPlayBackTimeChanged()
+        #self.onPlayBackTimeChanged()
 
     def onPlayBackStopped(self) -> None:
+        log("Playback stopped")
         self.onPlayBackEnded()
 
     def onPlayBackPaused(self) -> None:
@@ -40,17 +42,21 @@ class FCastPlayer(xbmc.Player):
         self.onPlayBackTimeChanged()
 
     def onPlayBackResumed(self) -> None:
-        self.is_paused = False
+        if self.is_paused:
+            self.is_paused = False          
     
     def onPlayBackEnded(self) -> None:
+        log("Playback ended")
         for session in self.sessions:
-            session.sendOpCode(opcode=OpCode.STOP)
-            #session.send_playback_update(PlayBackUpdateMessage(
-            #    0,
-            #    PlayBackState.IDLE,
-            #))
+            session.sendOpCode(opcode=OpCode.STOP)           
+            session.send_playback_update(PlayBackUpdateMessage(
+                0,
+                PlayBackState.IDLE,
+                duration=0
+            ))
     
     def onPlayBackError(self) -> None:
+        log("Playback error")
         self.onPlayBackEnded()
     
     def onPlayBackSpeedChanged(self, speed: int) -> None:
@@ -74,4 +80,7 @@ class FCastPlayer(xbmc.Player):
     
     def removeSession(self, session: FCastSession):
         self.sessions.remove(session)   
+
+    def isPaused(self) -> bool:
+        return self.is_paused
 

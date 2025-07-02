@@ -38,6 +38,8 @@ player: Optional[FCastPlayer] = None
 # Used to queue up seeks
 seeks: list[float] = []
 
+
+
 def check_player():
     global player
     
@@ -60,6 +62,7 @@ def handle_play(session: FCastSession, message:PlayMessage):
 
     if not message:
         return
+    
     
     if message.url:
         url = message.url
@@ -142,7 +145,7 @@ def handle_seek(session: FCastSession, message = None):
     # Append this seek to the seeks "queue"
     seeks.append(float(message.time))
     # Ensure that player.seekTime is called with a low frequency. This prevents Kodi from freezing
-    debounce(do_seek, 0.15)()
+    debounce(do_seek, 0.5)()
 
 def handle_stop(session: FCastPlayer, message = None):
     global player
@@ -161,6 +164,7 @@ def handle_resume(session: FCastPlayer, message = None):
     log(f"Client request resume")
     if player:
         player.doResume()
+
 
 def handle_volume(session: FCastSession, message: SetVolumeMessage):
     global player

@@ -3,7 +3,7 @@ VERSION=0.0.1
 SOURCE_DIR=$(shell basename `pwd`)
 TARGET_DIR=$(shell basename `pwd`)/dist
 TARGET_ZIP=${NAME}-${VERSION}.zip
-SOURCE_EXCLUDE="${SOURCE_DIR}/.git/*" "${SOURCE_DIR}/venv/*" "${SOURCE_DIR}/.gitignore" "${SOURCE_DIR}/Makefile" "${SOURCE_DIR}/__pycache__" "${TARGET_DIR}"
+SOURCE_EXCLUDE="${SOURCE_DIR}/.git/*" "${SOURCE_DIR}/venv/*" "${SOURCE_DIR}/.gitignore" "${SOURCE_DIR}/Makefile" "${SOURCE_DIR}/__pycache__" "${TARGET_DIR}" "${SOURCE_DIR}/debug*"
 
 all: clean
 	@mkdir -p ../${TARGET_DIR}

@@ -7,3 +7,6 @@ dist/
 # Cache
 __pycache__/
 *.pyc
+
+#Debug stuff
+debug*
